@@ -1,0 +1,25 @@
+#! /bin/bash
+TCCOMMAND=$1
+shift
+tc_hostnamectl(){
+	if [ "x$1" = "x" ]
+	then
+	echo "   Static hostname: `cat $TCROOT/etc/hostname`"
+	return
+	else
+		case $1 in
+			set-hostname)
+				echo $2 > $TCROOT/etc/hostname
+				;;
+		esac
+	fi
+}
+shift
+case $TCCOMMAND in
+	hostnamectl)
+		tc_hostnamectl $*
+		;;
+	*)
+		exit 1
+		;;
+esac
