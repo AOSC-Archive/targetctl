@@ -1,6 +1,6 @@
 #! /bin/bash
 TCCOMMAND=$1
-shift
+# shift
 tc_hostnamectl(){
 	if [ "x$1" = "x" ]
 	then
