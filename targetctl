@@ -45,6 +45,7 @@ tc_localectl(){
 	fi
 }
 tc_timedatectl(){
+true
 }
 shift
 case $TCCOMMAND in
@@ -55,7 +56,7 @@ case $TCCOMMAND in
 		tc_localectl $*
 		;;
 	*)
-		echo "Supported simulation: hostnamectl"
+		echo "Supported simulation: hostnamectl localectl"
 		exit 1
 		;;
 esac
