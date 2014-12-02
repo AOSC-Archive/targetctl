@@ -45,7 +45,24 @@ tc_localectl(){
 	fi
 }
 tc_timedatectl(){
-true
+	if [ "x$1" = "x" ]
+	then
+		# TODO: a ugly hack
+		TTZ=`readlink $TCROOT/etc/localtime  | cut -d o -f 3- | cut -c 2-`
+		echo "      Local time: `TZ=$TTZ date`"
+		echo "  Universal time: `TZ=UTC date`"
+	return
+	else
+		case $1 in 
+			set-locale)
+				echo $2 > $TCROOT/etc/locale.conf
+				;;
+			*)
+				echo "Unknown operation $1"
+				return 1
+				;;
+		esac
+	fi
 }
 shift
 case $TCCOMMAND in
@@ -54,6 +71,9 @@ case $TCCOMMAND in
 		;;
 	localectl)
 		tc_localectl $*
+		;;
+	timedatectl)
+		tc_timedatectl $*
 		;;
 	*)
 		echo "Supported simulation: hostnamectl localectl"
