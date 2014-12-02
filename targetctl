@@ -31,6 +31,8 @@ tc_localectl(){
 	if [ "x$1" = "x" ]
 	then
 	echo "   System Locale: `cat $TCROOT/etc/locale.conf`"
+	[ -f $TCROOT/etc/vconsole.conf ] && echo "       VC Keymap: `cat $TCROOT/etc/vconsole.conf | grep ^KEYMAP\\= | cut -d = -f 2-`" || 
+		echo "       VC Keymap: n/a"
 	return
 	else
 		case $1 in 
