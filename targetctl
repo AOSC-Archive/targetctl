@@ -51,13 +51,37 @@ tc_timedatectl(){
 	then
 		# TODO: a ugly hack
 		TTZ=`readlink $TCROOT/etc/localtime  | cut -d o -f 3- | cut -c 2-`
-		echo "      Local time: `TZ=$TTZ date`"
-		echo "  Universal time: `TZ=UTC date`"
+		echo "      Local time: `TZ=$TTZ date --iso-8601=seconds`"
+		echo "  Universal time: `TZ=UTC date --iso-8601=seconds`"
+		echo "        RTC time: `hwclock -r`"
+		echo "       Time zone: $TTZ "
+		grep '[Ll][Oo][Cc][Aa][Ll]' $TCROOT/etc/adjtime 2>/dev/null 1>&2 || LOCALTIME=0
+		[ "x$LOCALTIME" = "x0" ] && echo " RTC in local TZ: no" || 
+		echo " RTC in local TZ: yes"
+		[ "x$LOCALTIME" = "x0" ] || (
+			echo ""
+			echo "[1;39mWarning: The system is configured to read the RTC time in the local time zone. This" 
+			echo "         mode can not be fully supported. It will create various problems with time" 
+			echo "         zone changes and daylight saving time adjustments. The RTC time is never updated," 
+			echo "         it relies on external facilities to maintain it. If at all possible, use" 
+			echo "         RTC in UTC by calling 'timedatectl set-local-rtc 0'[0m." 
+		)
+
 	return
 	else
 		case $1 in 
-			set-locale)
-				echo $2 > $TCROOT/etc/locale.conf
+			set-timezone)
+				ln -sf ../usr/share/zoneinfo/$2 $TCROOT/etc/localtime
+				;;
+			set-local-rtc)
+				if bool $2
+				then
+					echo "0.0 0 0
+0
+LOCAL" > $TCROOT/etc/adjtime
+				else
+					rm $TCROOT/etc/adjtime
+				fi
 				;;
 			*)
 				echo "Unknown operation $1"
@@ -78,7 +102,7 @@ case $TCCOMMAND in
 		tc_timedatectl $*
 		;;
 	*)
-		echo "Supported simulation: hostnamectl localectl"
+		echo "Supported simulation: hostnamectl localectl timedatectl"
 		exit 1
 		;;
 esac
